@@ -1,0 +1,97 @@
+#apiVersion: kafka.strimzi.io/v1alpha1
+#kind: KafkaBridge
+#metadata:
+#  name: my-bridge
+#spec:
+#  replicas: 1
+#  bootstrapServers: my-cluster-kafka-bootstrap:9092
+#  http:
+#    port: 8080
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: my-bridge-ingress
+#spec:
+#  rules:
+#  - host: my-bridge.io
+#    http:
+#      paths:
+#      - path: /
+#        backend:
+#          serviceName: my-bridge-bridge-service
+#          servicePort: 8080
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: my-bridge-ingress
+#spec:
+#  rules:
+#  - host: my-bridge.io
+#    http:
+#      paths:
+#      - path: /
+#        backend:
+#          service:
+#            name: my-bridge-bridge-service
+#            port:
+#              number: 8080
+#---
+#apiVersion: kafka.strimzi.io/v1alpha1
+#kind: KafkaBridge
+#metadata:
+#  name: octopus-rest-proxy
+#spec:
+#  replicas: 1
+#  bootstrapServers: octopus-kafka-bootstrap:{{ .Values.kafka.ssl.enabled | ternary "9093" "9092" }}
+#  consumer:
+#    config:
+#      auto.offset.reset: earliest
+#      enable.auto.commit: true
+#  producer:
+#    config:
+#      acks: 1
+#      delivery.timeout.ms: 300000
+#  http:
+#    port: 8080
+#---
+apiVersion: kafka.strimzi.io/v1alpha1
+kind: KafkaBridge
+metadata:
+  name: my-cluster
+spec:
+  replicas: 1
+  bootstrapServers: octopus-kafka-bootstrap:{{ .Values.kafka.ssl.enabled | ternary "9093" "9092" }}
+  consumer:
+    config:
+      auto.offset.reset: earliest
+      enable.auto.commit: true
+  producer:
+    config:
+      acks: 1
+      delivery.timeout.ms: 300000
+  http:
+    port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: octopus-rest-proxy-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: octopus-bridge-auth
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required'
+spec:
+  rules:
+    - host: octopus-rest-proxy.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: octopus-rest-proxy-bridge-service
+                port:
+                  number: 8080
+

@@ -1,4 +1,5 @@
 # see also:
+# https://strimzi.io/docs/operators/master/quickstart.html#proc-kafka-cluster-str
 # https://strimzi.io/quickstarts/
 
 

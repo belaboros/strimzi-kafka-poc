@@ -1,0 +1,33 @@
+# see also:
+# https://strimzi.io/docs/operators/latest/using.html#assembly-kafka-bridge-quickstart-str
+# https://strimzi.io/blog/2019/11/05/exposing-http-bridge/
+#
+apiVersion: kafka.strimzi.io/v1alpha1
+kind: KafkaBridge
+metadata:
+  name: quickstart
+spec:
+  replicas: 1
+  bootstrapServers: my-cluster-kafka-bootstrap:9092
+  http:
+    port: 8080
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: my-cluster-bridge-ingress
+#spec:
+#  rules:
+#    - host: my-bridge.io
+#      http:
+#        paths:
+#          - path: /
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: my-cluster-bridge-service
+#                port:
+#                  number: 8080
+
+
+
